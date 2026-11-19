@@ -1,0 +1,1087 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoShield | Network Security Framework</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0b1120;
+    color: #e5e7eb;
+}
+
+header {
+    background: #111c30;
+    padding: 18px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #26354c;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.logo span { color: white; }
+
+.status {
+    color: #4ade80;
+    font-size: 13px;
+}
+
+.container {
+    display: flex;
+    min-height: calc(100vh - 65px);
+}
+
+.sidebar {
+    width: 220px;
+    background: #111c30;
+    padding: 25px 15px;
+    border-right: 1px solid #26354c;
+}
+
+.sidebar h3 {
+    font-size: 12px;
+    color: #8292aa;
+    margin: 10px 12px 15px;
+    text-transform: uppercase;
+}
+
+.nav {
+    padding: 13px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    color: #b6c3d6;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.nav:hover, .nav.active {
+    background: #1e3a5f;
+    color: #38bdf8;
+}
+
+main {
+    flex: 1;
+    padding: 30px;
+    min-width: 0;
+}
+
+h1 { font-size: 27px; margin-bottom: 8px; }
+
+.subtitle {
+    color: #94a3b8;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.card {
+    background: #142137;
+    border: 1px solid #26354c;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.card small { color: #94a3b8; }
+
+.card h2 {
+    font-size: 28px;
+    margin-top: 12px;
+}
+
+.blue { color: #38bdf8; }
+.green { color: #4ade80; }
+.red { color: #fb7185; }
+.yellow { color: #facc15; }
+
+.section {
+    background: #142137;
+    border: 1px solid #26354c;
+    border-radius: 12px;
+    padding: 23px;
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    font-size: 19px;
+    margin-bottom: 17px;
+}
+
+label {
+    display: block;
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    background: #0b1528;
+    border: 1px solid #33445e;
+    color: white;
+    border-radius: 7px;
+    outline: none;
+    margin-bottom: 17px;
+}
+
+input:focus { border-color: #38bdf8; }
+
+button {
+    background: #0284c7;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: .2s;
+}
+
+button:hover { background: #0369a1; }
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.secondary {
+    background: #26354c;
+    margin-left: 8px;
+}
+
+.secondary:hover { background: #354968; }
+
+.progress {
+    width: 100%;
+    height: 9px;
+    background: #26354c;
+    border-radius: 20px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    background: #38bdf8;
+    transition: width .4s;
+}
+
+.hidden { display: none; }
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.result {
+    padding: 15px;
+    border-radius: 8px;
+    background: #0c192d;
+    border-left: 4px solid #38bdf8;
+}
+
+.result h4 { margin-bottom: 7px; }
+.result p { font-size: 13px; color: #aab9ce; line-height: 1.5; }
+
+.alert {
+    padding: 13px;
+    margin: 10px 0;
+    background: #0c192d;
+    border-radius: 7px;
+    border-left: 4px solid #facc15;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.safe { border-left-color: #4ade80; }
+.danger { border-left-color: #fb7185; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 450px;
+}
+
+th, td {
+    text-align: left;
+    padding: 13px 10px;
+    border-bottom: 1px solid #26354c;
+}
+
+th { color: #94a3b8; }
+
+.badge {
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.high { background: #57232e; color: #fda4af; }
+.medium { background: #493b18; color: #fde68a; }
+.low { background: #16412d; color: #86efac; }
+
+.score {
+    text-align: center;
+    padding: 20px;
+}
+
+.score-number {
+    font-size: 50px;
+    font-weight: bold;
+    color: #4ade80;
+}
+
+footer {
+    text-align: center;
+    color: #718096;
+    padding: 20px;
+    font-size: 12px;
+}
+
+@media(max-width:900px) {
+    .grid { grid-template-columns: repeat(2,1fr); }
+}
+
+@media(max-width:650px) {
+    .container { flex-direction: column; }
+    .sidebar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        border-right: none;
+    }
+    .sidebar h3 { display: none; }
+    .nav { white-space: nowrap; margin: 0 4px; }
+    main { padding: 18px; }
+    .grid { grid-template-columns: repeat(2,1fr); }
+    .results-grid { grid-template-columns: 1fr; }
+    header { padding: 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🛡 Auto<span>Shield</span></div>
+    <div class="status">● Framework Ready</div>
+</header>
+
+<div class="container">
+
+<aside class="sidebar">
+    <h3>Navigation</h3>
+    <div class="nav active" onclick="showSection('dashboard',this)">📊 Dashboard</div>
+    <div class="nav" onclick="showSection('scanner',this)">🔍 Security Scanner</div>
+    <div class="nav" onclick="showSection('results',this)">⚠ Security Results</div>
+    <div class="nav" onclick="showSection('history',this)">📁 Scan History</div>
+    <div class="nav" onclick="showSection('about',this)">ℹ About Project</div>
+</aside>
+
+<main>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard">
+    <h1>Security Dashboard</h1>
+    <p class="subtitle">Automated Network Security Assessment Framework</p>
+
+    <div class="grid">
+        <div class="card">
+            <small>Total Scans</small>
+            <h2 class="blue" id="totalScans">0</h2>
+        </div>
+        <div class="card">
+            <small>Last Security Score</small>
+            <h2 class="green" id="lastScore">--</h2>
+        </div>
+        <div class="card">
+            <small>High Risk Alerts</small>
+            <h2 class="red" id="highAlerts">0</h2>
+        </div>
+        <div class="card">
+            <small>Framework Status</small>
+            <h2 class="green" style="font-size:19px">Ready</h2>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Welcome to AutoShield</h2>
+        <p style="color:#94a3b8;line-height:1.8">
+            AutoShield is an educational cybersecurity framework
+            that evaluates common network security indicators,
+            identifies suspicious URL patterns, and generates
+            security recommendations.
+        </p>
+        <br>
+        <button onclick="showSection('scanner')">Start Security Assessment →</button>
+    </div>
+
+    <div class="section">
+        <h2>Security Modules</h2>
+        <div class="results-grid">
+            <div class="result">
+                <h4>🌐 IP Validation</h4>
+                <p>Checks whether the supplied IPv4 address has a valid format.</p>
+            </div>
+            <div class="result">
+                <h4>🔌 Port Assessment</h4>
+                <p>Explains common network ports and their security implications.</p>
+            </div>
+            <div class="result">
+                <h4>🔗 URL Analysis</h4>
+                <p>Checks for suspicious URL characteristics and insecure HTTP.</p>
+            </div>
+            <div class="result">
+                <h4>📈 Risk Assessment</h4>
+                <p>Calculates an educational security score and suggests improvements.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCANNER -->
+
+<div id="scanner" class="hidden">
+    <h1>Automated Security Scanner</h1>
+    <p class="subtitle">Enter network information to start your assessment.</p>
+
+    <div class="section">
+        <h2>Assessment Configuration</h2>
+
+        <label>Target IPv4 Address</label>
+        <input id="ip" type="text" placeholder="Example: 192.168.1.10" value="192.168.1.10">
+
+        <label>Website URL</label>
+        <input id="url" type="text" placeholder="Example: https://example.com" value="https://example.com">
+
+        <label>Common Port Configuration (Educational Assessment)</label>
+        <div style="color:#aab9ce;font-size:13px;line-height:2;margin-bottom:15px">
+            <label><input type="checkbox" id="ftp" style="width:auto;margin:0 8px 0 0"> FTP (21) enabled</label>
+            <label><input type="checkbox" id="telnet" style="width:auto;margin:0 8px 0 0"> Telnet (23) enabled</label>
+            <label><input type="checkbox" id="http" style="width:auto;margin:0 8px 0 0"> HTTP (80) enabled</label>
+            <label><input type="checkbox" id="ssh" style="width:auto;margin:0 8px 0 0"> SSH (22) enabled</label>
+        </div>
+
+        <p style="font-size:12px;color:#94a3b8;margin-bottom:15px">
+            Port checkboxes are sample configuration inputs, not detected open ports.
+        </p>
+
+        <button id="scanBtn" onclick="startScan()">🚀 Start Automated Scan</button>
+        <button class="secondary" onclick="resetScan()">Reset</button>
+
+        <div id="progressArea" class="hidden">
+            <p id="progressText" style="margin-top:20px;color:#38bdf8">
+                Initializing scanner...
+            </p>
+            <div class="progress">
+                <div class="bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="scanOutput" class="section hidden">
+        <h2>Assessment Results</h2>
+
+        <div class="score">
+            <div class="score-number" id="scoreValue">0</div>
+            <p id="scoreLabel">Security Score / 100</p>
+        </div>
+
+        <div id="resultList" class="results-grid"></div>
+
+        <br>
+        <h2>Security Recommendations</h2>
+        <div id="recommendations"></div>
+
+        <br>
+        <button onclick="downloadReport()">⬇ Download Security Report</button>
+        <button class="secondary" onclick="showSection('results')">View Full Results</button>
+    </div>
+</div>
+
+<!-- RESULTS -->
+
+<div id="results" class="hidden">
+    <h1>Security Results</h1>
+    <p class="subtitle">Detailed findings from your latest assessment.</p>
+
+    <div class="section">
+        <div id="fullResults">
+            <p style="color:#94a3b8">No scan results available. Run an assessment first.</p>
+        </div>
+    </div>
+</div>
+
+<!-- HISTORY -->
+
+<div id="history" class="hidden">
+    <h1>Scan History</h1>
+    <p class="subtitle">Previously saved security assessments.</p>
+
+    <div class="section">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>IP Address</th>
+                        <th>Security Score</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+        <br>
+        <button class="secondary" onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+
+<!-- ABOUT -->
+
+<div id="about" class="hidden">
+    <h1>About AutoShield</h1>
+    <p class="subtitle">Automated Network Security Assessment Framework</p>
+
+    <div class="section">
+        <h2>Project Objective</h2>
+        <p style="color:#94a3b8;line-height:1.8">
+            The objective of AutoShield is to demonstrate how
+            automated security assessment can help identify
+            common security weaknesses and improve network
+            security awareness.
+        </p>
+        <br>
+        <h2>Technology Stack</h2>
+        <div class="results-grid">
+            <div class="result"><h4>HTML5</h4><p>Website structure</p></div>
+            <div class="result"><h4>CSS3</h4><p>Modern interface design</p></div>
+            <div class="result"><h4>JavaScript</h4><p>Security assessment logic</p></div>
+            <div class="result"><h4>LocalStorage</h4><p>Local scan history</p></div>
+        </div>
+        <br>
+        <h2>Limitations</h2>
+        <p style="color:#94a3b8;line-height:1.8">
+            This is a frontend educational prototype. It does not
+            perform actual network traffic capture, port scanning,
+            vulnerability exploitation, or external threat
+            intelligence verification.
+        </p>
+    </div>
+</div>
+
+</main>
+</div>
+
+<footer>
+    AutoShield © 2026 | Educational Cybersecurity Project
+</footer>
+
+<script>
+
+// NAVIGATION
+
+function showSection(id, element) {
+    document.querySelectorAll("main > div").forEach(section => {
+        section.classList.add("hidden");
+    });
+
+    document.getElementById(id).classList.remove("hidden");
+
+    document.querySelectorAll(".nav").forEach(nav => {
+        nav.classList.remove("active");
+    });
+
+    if(element) element.classList.add("active");
+
+    if(id === "history") renderHistory();
+    if(id === "dashboard") updateDashboard();
+}
+
+// DATA
+
+let latestReport = null;
+
+function getHistory() {
+    try {
+        return JSON.parse(localStorage.getItem("autoShieldHistory")) || [];
+    } catch {
+        return [];
+    }
+}
+
+// IP VALIDATION
+
+function validateIP(ip) {
+    const parts = ip.split(".");
+
+    return parts.length === 4 &&
+        parts.every(part =>
+            /^\d{1,3}$/.test(part) &&
+            Number(part) >= 0 &&
+            Number(part) <= 255
+        );
+}
+
+// URL ANALYSIS
+
+function analyzeURL(value) {
+    const findings = [];
+    let risk = 0;
+
+    let parsed;
+
+    try {
+        parsed = new URL(value);
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+            throw new Error("Unsupported protocol");
+        }
+    } catch {
+        return {
+            risk: 40,
+            findings: [{
+                name: "URL Format",
+                status: "Invalid",
+                level: "High",
+                detail: "The supplied URL is invalid or uses an unsupported protocol."
+            }]
+        };
+    }
+
+    if (parsed.protocol !== "https:") {
+        risk += 15;
+        findings.push({
+            name: "HTTPS Check",
+            status: "Warning",
+            level: "Medium",
+            detail: "The URL uses HTTP rather than HTTPS."
+        });
+    } else {
+        findings.push({
+            name: "HTTPS Check",
+            status: "Passed",
+            level: "Low",
+            detail: "The URL uses the HTTPS protocol."
+        });
+    }
+
+    const hostname = parsed.hostname;
+
+    const ipHost = /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname);
+
+    if (ipHost) {
+        risk += 30;
+        findings.push({
+            name: "IP-Based URL",
+            status: "Warning",
+            level: "High",
+            detail: "The hostname is an IP address rather than a conventional domain."
+        });
+    } else {
+        findings.push({
+            name: "Hostname Check",
+            status: "Passed",
+            level: "Low",
+            detail: "The hostname is not formatted as an IPv4 address."
+        });
+    }
+
+    if (/@/.test(value)) {
+        risk += 25;
+        findings.push({
+            name: "URL Symbol Check",
+            status: "Warning",
+            level: "High",
+            detail: "The URL contains @, which can obscure the actual destination."
+        });
+    }
+
+    const keywords = [
+        "login", "verify", "free-gift", "password",
+        "account-update", "secure-login"
+    ];
+
+    const found = keywords.filter(word =>
+        value.toLowerCase().includes(word)
+    );
+
+    if (found.length) {
+        risk += 15;
+        findings.push({
+            name: "Suspicious Keywords",
+            status: "Warning",
+            level: "Medium",
+            detail: "Potentially deceptive keywords detected: " + found.join(", ")
+        });
+    } else {
+        findings.push({
+            name: "Keyword Check",
+            status: "Passed",
+            level: "Low",
+            detail: "No configured suspicious keywords were detected."
+        });
+    }
+
+    const labels = hostname.split(".");
+
+    if (labels.length > 4) {
+        risk += 15;
+        findings.push({
+            name: "Subdomain Check",
+            status: "Warning",
+            level: "Medium",
+            detail: "The hostname contains an unusually large number of subdomains."
+        });
+    }
+
+    return {
+        risk: Math.min(risk, 100),
+        findings
+    };
+}
+
+// MAIN SCAN
+
+function startScan() {
+    const ip = document.getElementById("ip").value.trim();
+    const url = document.getElementById("url").value.trim();
+
+    if (!ip || !url) {
+        alert("Please enter both an IP address and a URL.");
+        return;
+    }
+
+    const btn = document.getElementById("scanBtn");
+    btn.disabled = true;
+
+    document.getElementById("scanOutput").classList.add("hidden");
+    document.getElementById("progressArea").classList.remove("hidden");
+
+    const steps = [
+        "Validating IP address...",
+        "Analyzing website URL...",
+        "Assessing common port configurations...",
+        "Calculating security risk...",
+        "Generating security report..."
+    ];
+
+    let count = 0;
+
+    const timer = setInterval(() => {
+        count++;
+
+        document.getElementById("progressBar").style.width =
+            (count / steps.length * 100) + "%";
+
+        document.getElementById("progressText").textContent =
+            steps[count - 1];
+
+        if (count === steps.length) {
+            clearInterval(timer);
+            performAssessment(ip, url);
+            btn.disabled = false;
+        }
+    }, 450);
+}
+
+// SECURITY ASSESSMENT
+
+function performAssessment(ip, url) {
+
+    let risk = 0;
+    let findings = [];
+    let recommendations = [];
+
+    // IP CHECK
+
+    if (validateIP(ip)) {
+        findings.push({
+            name: "IPv4 Validation",
+            status: "Passed",
+            level: "Low",
+            detail: "The supplied address has a valid IPv4 format."
+        });
+    } else {
+        risk += 25;
+        findings.push({
+            name: "IPv4 Validation",
+            status: "Failed",
+            level: "High",
+            detail: "The supplied address is not a valid IPv4 address."
+        });
+        recommendations.push("Enter a valid IPv4 address.");
+    }
+
+    // URL CHECK
+
+    const urlData = analyzeURL(url);
+
+    risk += urlData.risk;
+    findings = findings.concat(urlData.findings);
+
+    // PORT CONFIGURATION CHECK
+
+    const ports = [
+        {
+            id: "ftp",
+            port: 21,
+            name: "FTP",
+            risk: 20,
+            detail: "FTP may transmit credentials without encryption."
+        },
+        {
+            id: "telnet",
+            port: 23,
+            name: "Telnet",
+            risk: 25,
+            detail: "Telnet does not encrypt remote terminal communication."
+        },
+        {
+            id: "http",
+            port: 80,
+            name: "HTTP",
+            risk: 10,
+            detail: "HTTP does not encrypt web traffic."
+        },
+        {
+            id: "ssh",
+            port: 22,
+            name: "SSH",
+            risk: 0,
+            detail: "SSH provides encrypted remote access when properly configured."
+        }
+    ];
+
+    ports.forEach(port => {
+        const enabled = document.getElementById(port.id).checked;
+
+        if (enabled) {
+            risk += port.risk;
+
+            findings.push({
+                name: port.name + " (Port " + port.port + ")",
+                status: port.risk ? "Review Needed" : "Enabled",
+                level: port.risk >= 20 ? "High" :
+                       port.risk > 0 ? "Medium" : "Low",
+                detail: port.detail
+            });
+
+            if (port.risk) {
+                recommendations.push(
+                    "Review " + port.name + " on port " + port.port +
+                    " and disable it if unnecessary."
+                );
+            }
+        } else {
+            findings.push({
+                name: port.name + " (Port " + port.port + ")",
+                status: "Not Selected",
+                level: "Low",
+                detail: "This service was not selected in the sample configuration."
+            });
+        }
+    });
+
+    risk = Math.min(risk, 100);
+
+    const score = 100 - risk;
+
+    if (recommendations.length === 0) {
+        recommendations.push(
+            "Continue using secure protocols and regularly review network configurations."
+        );
+    }
+
+    latestReport = {
+        date: new Date().toLocaleString(),
+        ip,
+        url,
+        score,
+        risk,
+        findings,
+        recommendations
+    };
+
+    displayResults(latestReport);
+
+    // SAVE HISTORY
+
+    const history = getHistory();
+
+    history.unshift({
+        date: latestReport.date,
+        ip,
+        score,
+        risk: score >= 80 ? "Low" : score >= 50 ? "Medium" : "High"
+    });
+
+    localStorage.setItem(
+        "autoShieldHistory",
+        JSON.stringify(history.slice(0, 30))
+    );
+
+    document.getElementById("progressText").textContent =
+        "Assessment completed successfully!";
+
+    document.getElementById("scanOutput").classList.remove("hidden");
+
+    updateDashboard();
+}
+
+// DISPLAY RESULTS
+
+function displayResults(report) {
+
+    const score = report.score;
+
+    const scoreElement = document.getElementById("scoreValue");
+
+    scoreElement.textContent = score + "/100";
+
+    scoreElement.style.color =
+        score >= 80 ? "#4ade80" :
+        score >= 50 ? "#facc15" : "#fb7185";
+
+    document.getElementById("scoreLabel").textContent =
+        score >= 80 ? "Lower observed risk" :
+        score >= 50 ? "Moderate observed risk" :
+        "Higher observed risk";
+
+    const resultList = document.getElementById("resultList");
+
+    resultList.innerHTML = "";
+
+    report.findings.forEach(item => {
+        const color = item.level === "High" ? "danger" :
+                      item.level === "Medium" ? "" : "safe";
+
+        resultList.innerHTML += `
+            <div class="result ${color}">
+                <h4>${escapeHTML(item.name)}</h4>
+                <p><b>${escapeHTML(item.status)}</b></p>
+                <p>${escapeHTML(item.detail)}</p>
+            </div>
+        `;
+    });
+
+    document.getElementById("recommendations").innerHTML =
+        report.recommendations.map(item =>
+            `<div class="alert">💡 ${escapeHTML(item)}</div>`
+        ).join("");
+
+    document.getElementById("fullResults").innerHTML = `
+        <h3 style="margin-bottom:15px">Latest Assessment</h3>
+        <p style="color:#94a3b8;margin-bottom:10px">
+            Target IP: ${escapeHTML(report.ip)}
+        </p>
+        <p style="color:#94a3b8;margin-bottom:15px">
+            Website: ${escapeHTML(report.url)}
+        </p>
+        <p style="margin-bottom:15px">
+            Security score: <b class="blue">${score}/100</b>
+        </p>
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Security Check</th>
+                    <th>Status</th>
+                    <th>Risk</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${report.findings.map(item => `
+                    <tr>
+                        <td>${escapeHTML(item.name)}</td>
+                        <td>${escapeHTML(item.status)}</td>
+                        <td>
+                            <span class="badge ${
+                                item.level === "High" ? "high" :
+                                item.level === "Medium" ? "medium" : "low"
+                            }">${escapeHTML(item.level)}</span>
+                        </td>
+                        <td>${escapeHTML(item.detail)}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+        </div>
+    `;
+}
+
+// PREVENT HTML INJECTION IN DISPLAYED DATA
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+// DASHBOARD
+
+function updateDashboard() {
+
+    const history = getHistory();
+
+    document.getElementById("totalScans").textContent =
+        history.length;
+
+    document.getElementById("lastScore").textContent =
+        history.length ? history[0].score + "/100" : "--";
+
+    document.getElementById("highAlerts").textContent =
+        latestReport ?
+        latestReport.findings.filter(f => f.level === "High").length : 0;
+}
+
+// HISTORY
+
+function renderHistory() {
+
+    const history = getHistory();
+
+    const body = document.getElementById("historyBody");
+
+    if (!history.length) {
+        body.innerHTML = `
+            <tr><td colspan="4">No assessments saved yet.</td></tr>
+        `;
+        return;
+    }
+
+    body.innerHTML = history.map(item => `
+        <tr>
+            <td>${escapeHTML(item.date)}</td>
+            <td>${escapeHTML(item.ip)}</td>
+            <td>${item.score}/100</td>
+            <td>
+                <span class="badge ${
+                    item.risk === "High" ? "high" :
+                    item.risk === "Medium" ? "medium" : "low"
+                }">${escapeHTML(item.risk)}</span>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function clearHistory() {
+    if (confirm("Are you sure you want to clear scan history?")) {
+        localStorage.removeItem("autoShieldHistory");
+        renderHistory();
+        updateDashboard();
+    }
+}
+
+// REPORT DOWNLOAD
+
+function downloadReport() {
+
+    if (!latestReport) {
+        alert("Please complete an assessment first.");
+        return;
+    }
+
+    const report = latestReport;
+
+    let content =
+        "AUTOSHIELD - NETWORK SECURITY ASSESSMENT REPORT\n" +
+        "================================================\n\n" +
+        "Date: " + report.date + "\n" +
+        "IP Address: " + report.ip + "\n" +
+        "Website: " + report.url + "\n" +
+        "Security Score: " + report.score + "/100\n\n" +
+        "SECURITY FINDINGS\n" +
+        "-----------------\n";
+
+    report.findings.forEach(item => {
+        content +=
+            "\n" + item.name +
+            "\nStatus: " + item.status +
+            "\nRisk: " + item.level +
+            "\nDetails: " + item.detail + "\n";
+    });
+
+    content += "\nRECOMMENDATIONS\n---------------\n";
+
+    report.recommendations.forEach(item => {
+        content += "\n- " + item;
+    });
+
+    content +=
+        "\n\nNote: Educational frontend assessment. " +
+        "This report does not represent a real network scan.";
+
+    const blob = new Blob([content], {
+        type: "text/plain"
+    });
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "AutoShield_Security_Report.txt";
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+}
+
+// RESET
+
+function resetScan() {
+
+    document.getElementById("ip").value = "";
+    document.getElementById("url").value = "";
+
+    ["ftp", "telnet", "http", "ssh"].forEach(id => {
+        document.getElementById(id).checked = false;
+    });
+
+    document.getElementById("scanOutput").classList.add("hidden");
+    document.getElementById("progressArea").classList.add("hidden");
+    document.getElementById("progressBar").style.width = "0%";
+    document.getElementById("progressText").textContent =
+        "Initializing scanner...";
+
+    latestReport = null;
+}
+
+// INITIALIZE
+
+updateDashboard();
+
+</script>
+</body>
+</html>
