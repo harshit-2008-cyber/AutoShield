@@ -485,14 +485,15 @@ footer {
         <div class="results-grid">
             <div class="result"><h4>HTML5</h4><p>Website structure</p></div>
             <div class="result"><h4>CSS3</h4><p>Modern interface design</p></div>
-            <div class="result"><h4>JavaScript</h4><p>Security assessment logic</p></div>
-            <div class="result"><h4>LocalStorage</h4><p>Local scan history</p></div>
+            <div class="result"><h4>JavaScript</h4><p>Browser interface and report display</p></div>
+            <div class="result"><h4>Python + Flask</h4><p>Assessment API and server</p></div>
+            <div class="result"><h4>SQLite</h4><p>Persistent scan history</p></div>
         </div>
         <br>
         <h2>Limitations</h2>
         <p style="color:#94a3b8;line-height:1.8">
-            This is a frontend educational prototype. It does not
-            perform actual network traffic capture, port scanning,
+            This is an educational prototype. It does not perform
+            actual network traffic capture or real port scanning,
             vulnerability exploitation, or external threat
             intelligence verification.
         </p>
@@ -531,12 +532,10 @@ function showSection(id, element) {
 
 let latestReport = null;
 
-function getHistory() {
-    try {
-        return JSON.parse(localStorage.getItem("autoShieldHistory")) || [];
-    } catch {
-        return [];
-    }
+async function getHistory() {
+    const response = await fetch("/api/history");
+    if (!response.ok) throw new Error("Could not load scan history.");
+    return response.json();
 }
 
 // IP VALIDATION
@@ -715,146 +714,34 @@ function startScan() {
 
 // SECURITY ASSESSMENT
 
-function performAssessment(ip, url) {
-
-    let risk = 0;
-    let findings = [];
-    let recommendations = [];
-
-    // IP CHECK
-
-    if (validateIP(ip)) {
-        findings.push({
-            name: "IPv4 Validation",
-            status: "Passed",
-            level: "Low",
-            detail: "The supplied address has a valid IPv4 format."
-        });
-    } else {
-        risk += 25;
-        findings.push({
-            name: "IPv4 Validation",
-            status: "Failed",
-            level: "High",
-            detail: "The supplied address is not a valid IPv4 address."
-        });
-        recommendations.push("Enter a valid IPv4 address.");
-    }
-
-    // URL CHECK
-
-    const urlData = analyzeURL(url);
-
-    risk += urlData.risk;
-    findings = findings.concat(urlData.findings);
-
-    // PORT CONFIGURATION CHECK
-
-    const ports = [
-        {
-            id: "ftp",
-            port: 21,
-            name: "FTP",
-            risk: 20,
-            detail: "FTP may transmit credentials without encryption."
-        },
-        {
-            id: "telnet",
-            port: 23,
-            name: "Telnet",
-            risk: 25,
-            detail: "Telnet does not encrypt remote terminal communication."
-        },
-        {
-            id: "http",
-            port: 80,
-            name: "HTTP",
-            risk: 10,
-            detail: "HTTP does not encrypt web traffic."
-        },
-        {
-            id: "ssh",
-            port: 22,
-            name: "SSH",
-            risk: 0,
-            detail: "SSH provides encrypted remote access when properly configured."
-        }
-    ];
-
-    ports.forEach(port => {
-        const enabled = document.getElementById(port.id).checked;
-
-        if (enabled) {
-            risk += port.risk;
-
-            findings.push({
-                name: port.name + " (Port " + port.port + ")",
-                status: port.risk ? "Review Needed" : "Enabled",
-                level: port.risk >= 20 ? "High" :
-                       port.risk > 0 ? "Medium" : "Low",
-                detail: port.detail
-            });
-
-            if (port.risk) {
-                recommendations.push(
-                    "Review " + port.name + " on port " + port.port +
-                    " and disable it if unnecessary."
-                );
-            }
-        } else {
-            findings.push({
-                name: port.name + " (Port " + port.port + ")",
-                status: "Not Selected",
-                level: "Low",
-                detail: "This service was not selected in the sample configuration."
-            });
-        }
+async function performAssessment(ip, url) {
+    const ports = {};
+    ["ftp", "telnet", "http", "ssh"].forEach(id => {
+        ports[id] = document.getElementById(id).checked;
     });
 
-    risk = Math.min(risk, 100);
+    try {
+        const response = await fetch("/api/assess", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ip, url, ports })
+        });
 
-    const score = 100 - risk;
+        const report = await response.json();
+        if (!response.ok) throw new Error(report.error || "Assessment failed.");
 
-    if (recommendations.length === 0) {
-        recommendations.push(
-            "Continue using secure protocols and regularly review network configurations."
-        );
+        latestReport = report;
+        displayResults(latestReport);
+
+        document.getElementById("progressText").textContent =
+            "Assessment completed successfully!";
+        document.getElementById("scanOutput").classList.remove("hidden");
+        await updateDashboard();
+    } catch (error) {
+        document.getElementById("progressText").textContent =
+            "Assessment failed: " + error.message;
+        alert(error.message);
     }
-
-    latestReport = {
-        date: new Date().toLocaleString(),
-        ip,
-        url,
-        score,
-        risk,
-        findings,
-        recommendations
-    };
-
-    displayResults(latestReport);
-
-    // SAVE HISTORY
-
-    const history = getHistory();
-
-    history.unshift({
-        date: latestReport.date,
-        ip,
-        score,
-        risk: score >= 80 ? "Low" : score >= 50 ? "Medium" : "High"
-    });
-
-    localStorage.setItem(
-        "autoShieldHistory",
-        JSON.stringify(history.slice(0, 30))
-    );
-
-    document.getElementById("progressText").textContent =
-        "Assessment completed successfully!";
-
-    document.getElementById("scanOutput").classList.remove("hidden");
-
-    updateDashboard();
 }
 
 // DISPLAY RESULTS
@@ -953,56 +840,68 @@ function escapeHTML(value) {
 
 // DASHBOARD
 
-function updateDashboard() {
+async function updateDashboard() {
+    try {
+        const history = await getHistory();
 
-    const history = getHistory();
+        document.getElementById("totalScans").textContent =
+            history.length;
 
-    document.getElementById("totalScans").textContent =
-        history.length;
+        document.getElementById("lastScore").textContent =
+            history.length ? history[0].score + "/100" : "--";
 
-    document.getElementById("lastScore").textContent =
-        history.length ? history[0].score + "/100" : "--";
-
-    document.getElementById("highAlerts").textContent =
-        latestReport ?
-        latestReport.findings.filter(f => f.level === "High").length : 0;
+        document.getElementById("highAlerts").textContent =
+            latestReport ?
+            latestReport.findings.filter(f => f.level === "High").length : 0;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 // HISTORY
 
-function renderHistory() {
-
-    const history = getHistory();
-
+async function renderHistory() {
     const body = document.getElementById("historyBody");
 
-    if (!history.length) {
-        body.innerHTML = `
-            <tr><td colspan="4">No assessments saved yet.</td></tr>
-        `;
-        return;
-    }
+    try {
+        const history = await getHistory();
 
-    body.innerHTML = history.map(item => `
-        <tr>
-            <td>${escapeHTML(item.date)}</td>
-            <td>${escapeHTML(item.ip)}</td>
-            <td>${item.score}/100</td>
-            <td>
-                <span class="badge ${
-                    item.risk === "High" ? "high" :
-                    item.risk === "Medium" ? "medium" : "low"
-                }">${escapeHTML(item.risk)}</span>
-            </td>
-        </tr>
-    `).join("");
+        if (!history.length) {
+            body.innerHTML = `
+                <tr><td colspan="4">No assessments saved yet.</td></tr>
+            `;
+            return;
+        }
+
+        body.innerHTML = history.map(item => `
+            <tr>
+                <td>${escapeHTML(item.date)}</td>
+                <td>${escapeHTML(item.ip)}</td>
+                <td>${item.score}/100</td>
+                <td>
+                    <span class="badge ${
+                        item.risk === "High" ? "high" :
+                        item.risk === "Medium" ? "medium" : "low"
+                    }">${escapeHTML(item.risk)}</span>
+                </td>
+            </tr>
+        `).join("");
+    } catch (error) {
+        body.innerHTML = `
+            <tr><td colspan="4">Could not load scan history.</td></tr>
+        `;
+    }
 }
 
-function clearHistory() {
+async function clearHistory() {
     if (confirm("Are you sure you want to clear scan history?")) {
-        localStorage.removeItem("autoShieldHistory");
-        renderHistory();
-        updateDashboard();
+        const response = await fetch("/api/history", { method: "DELETE" });
+        if (!response.ok) {
+            alert("Could not clear scan history.");
+            return;
+        }
+        await renderHistory();
+        await updateDashboard();
     }
 }
 
